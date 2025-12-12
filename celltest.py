@@ -3,7 +3,21 @@ import pdfplumber
 import spacy
 
 # Load spaCy English model (make sure `en_core_web_sm` is installed)
-nlp = spacy.load("en_core_web_sm")
+import subprocess
+import sys
+import spacy
+
+MODEL_NAME = "en_core_web_sm"
+try:
+    nlp = spacy.load(MODEL_NAME)
+except OSError:
+    try:
+        # Download model at runtime (safe fallback on Streamlit Cloud)
+        subprocess.check_call([sys.executable, "-m", "spacy", "download", MODEL_NAME])
+        nlp = spacy.load(MODEL_NAME)
+    except Exception as e:
+        raise RuntimeError("Failed to load or download spaCy model en_core_web_sm: " + str(e))
+
 
 # ---------- FILE READERS ----------
 
@@ -197,3 +211,4 @@ if __name__ == "__main__":
 
     print("\n--- MASKED OUTPUT ---")
     print(mask_text(sample_text, items))
+
